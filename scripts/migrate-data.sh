@@ -10,3 +10,4 @@ mkdir ~/${BASE_PATH}/AAP-schema-server/AAP-schema-module-catalog/src/modules/adf
 cp -rf data/countries.js ~/${BASE_PATH}/AAP-schema-server/AAP-schema-module-catalog/src/modules/adform/readModel/inventoryMarketplaceEntityListModule/mocks/data/
 cp -rf data/ad-sizes.js ~/${BASE_PATH}/AAP-schema-server/AAP-schema-module-catalog/src/modules/adform/readModel/inventoryMarketplaceEntityListModule/mocks/data/
 cp -rf data/apps-and-domains.js ~/${BASE_PATH}/AAP-schema-server/AAP-schema-module-catalog/src/modules/adform/readModel/inventoryMarketplaceEntityListModule/mocks/data/
+cp -rf data/subdomains.js ~/${BASE_PATH}/AAP-schema-server/AAP-schema-module-catalog/src/modules/adform/readModel/inventoryMarketplaceEntityListModule/mocks/data/

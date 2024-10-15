@@ -1,3 +1,4 @@
+import { unionBy } from 'lodash-es';
 import { OPERATIONS, ORDER } from './constant.js';
 
 export function pluckData({ data, key }) {
@@ -22,16 +23,20 @@ export function populate(data, referenceMap) {
                 const value = item[key];
 
                 const { data: referenceData, primaryKey } = referenceMap[key];
-                const populatedValues = value.map((id) => {
-                    const referenceFound = referenceData.find((data) => data[primaryKey] === id);
 
-                    return {
-                        ...referenceFound,
-                        entityId,
-                    };
-                });
+                if (typeof value === 'string') {
+                    item[key] = referenceData.find((data) => data[primaryKey] === value);
+                } else {
+                    const populatedValues = value.map((id) => {
+                        const reference = referenceData.find((data) => data[primaryKey] === id);
 
-                item[key] = populatedValues;
+                        return {
+                            ...reference,
+                            entityId,
+                        };
+                    });
+                    item[key] = populatedValues;
+                }
             }
         }
 
@@ -41,12 +46,11 @@ export function populate(data, referenceMap) {
 
 export class Mock {
     /** @param {import('./types').MockParam} params */
-    constructor(data, { filters, sortBy, pagination }) {
-        /** @private */
-        this._data = data;
+    constructor(data, { filters, sortBy, pagination, distinctBy } = {}) {
+        console.log({ filters, sortBy, pagination, distinctBy });
 
         /** @private */
-        this._totalCount = data.length;
+        this._data = data;
 
         /** @private */
         this._filters = filters;
@@ -56,6 +60,9 @@ export class Mock {
 
         /** @private */
         this._pagination = pagination;
+
+        /** @private */
+        this._distinctBy = distinctBy;
     }
 
     /**
@@ -67,11 +74,6 @@ export class Mock {
         const cleanFieldName = key.split('.');
         cleanFieldName.shift(); // Removing entity name
         return cleanFieldName.reduce((acc, k) => acc && acc[k], obj);
-    }
-
-    /** @private */
-    _populate() {
-        this._data;
     }
 
     /** @private */
@@ -137,22 +139,35 @@ export class Mock {
         this._data = this._data.slice(offset, offset + limit);
     }
 
+    /** @private */
+    _applyDistinct() {
+        if (!this._distinctBy) return;
+        this._data = unionBy(this._data, this._distinctBy);
+    }
+
+    /** @private */
+    _getMetadata() {
+        const totalCount = this._data?.length;
+        if (!this._pagination) return { totalCount, hasMore: false };
+        const { offset, limit } = this._pagination;
+        const hasMore = offset + limit < totalCount;
+        return { totalCount, hasMore };
+    }
+
     /** @return {import('./types').GetDataReturn} */
     getData() {
-        this._populate();
-
+        this._applyDistinct();
         this._applyFiltering();
         this._applySorting();
+
+        const { hasMore, totalCount } = this._getMetadata();
+
         this._applyPagination();
 
         return {
             items: this._data,
-            totalCount: this._totalCount,
+            totalCount,
+            hasMore,
         };
-    }
-
-    /** @return {number} */
-    getTotalCount() {
-        return this._totalCount;
     }
 }

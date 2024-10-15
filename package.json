@@ -5,7 +5,7 @@
   "license": "MIT",
   "dependencies": {
     "@faker-js/faker": "^9.0.3",
-    "lodash": "^4.17.21"
+    "lodash-es": "^4.17.21"
   },
   "scripts": {
     "generate:data": "node data-generator/index.js",

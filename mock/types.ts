@@ -32,6 +32,7 @@ export type MockParam = {
     filters: Filter[];
     pagination: Pagination;
     sortBy: SortBy[]
+    distinctBy: string;
 };
 
 export type ReferenceMap = {

@@ -28,14 +28,12 @@ function main() {
         // console.log('element', element)
     });
 
-    // const filters = [{ fieldName: 'appsAndDomains.name', operation: 'eq', values: ['test'] }];
+    const filters = [{ fieldName: 'appsAndDomains.name', operation: 'eq', values: ['hyphenation'] }];
     const pagination = { offset: 0, limit: 100 };
     const sortBy = [{ fieldName: 'appsAndDomains.name', order: 'asc' }];
-    const mock = new Mock(data, { pagination, filters: null, sortBy });
-
-    const response = mock.getData();
-    const length = mock.getTotalCount()
-    console.log('length', length)
+    const mock = new Mock(data, { pagination, filters, sortBy });
+    const  response = mock.getData()
+    console.log(response)
 }
 
 main();
