@@ -1,10 +1,10 @@
 import { faker } from '@faker-js/faker';
-import { APPSTORE_TYPE, TYPE, ENV, DISPLAY_VALUE_LIMIT } from './constants.js';
-import { uniqBy } from 'lodash-es';
+import { APPSTORE_TYPE, TYPE, ENV, DISPLAY_VALUE_LIMIT, CHANNEL } from './constants.js';
+import { cloneDeep, uniqBy } from 'lodash-es';
 
 export function generateCountries(count) {
     const schema = () => ({
-        countryId: faker.string.uuid(),
+        countryId: faker.string.nanoid(),
         name: faker.location.country(),
     });
     const records = faker.helpers.multiple(schema, { count });
@@ -17,15 +17,34 @@ export function generateAdSizes(count) {
         const height = faker.number.int({ min: 100, max: 1000 });
         const name = `${width}x${height}`;
         return {
-            sizeId: faker.string.uuid(),
+            sizeId: faker.string.nanoid(),
             name,
-            sizeId: faker.string.uuid(),
+            sizeId: faker.string.nanoid(),
             width,
             height,
         };
-    }
-    const records = faker.helpers.multiple(schema, {count})
-    return uniqBy(records, 'name')
+    };
+    const records = faker.helpers.multiple(schema, { count });
+    return uniqBy(records, 'name');
+}
+
+export function getSubset(array, subsetLength) {
+    array = cloneDeep(array);
+
+    const shuffledArray = array.sort(() => 0.5 - Math.random());
+    return shuffledArray.slice(0, subsetLength);
+}
+
+export function getChannels() {
+    const channelsCount = faker.helpers.rangeToNumber({ min: 1, max: CHANNEL.length });
+    const channels = getSubset(CHANNEL, channelsCount);
+    return channels;
+}
+
+export function getEnvironments() {
+    const envCount = faker.helpers.rangeToNumber({ min: 1, max: ENV.length });
+    const environments = getSubset(ENV, envCount);
+    return environments;
 }
 
 export async function generateAppsAndDomains({ listCount, countriesCount, adSizesCount }) {
@@ -34,12 +53,7 @@ export async function generateAppsAndDomains({ listCount, countriesCount, adSize
 
     return faker.helpers.multiple(
         () => {
-            const channelsCount = faker.helpers.rangeToNumber({ max: 20 });
-            const channels = faker.helpers.multiple(() => faker.word.noun(), {
-                count: channelsCount,
-            });
-
-            const adTypesTempCount = faker.helpers.rangeToNumber({ max: 20 });
+            const adTypesTempCount = faker.helpers.rangeToNumber({ min: 1, max: 20 });
             const adTypesTemp = faker.helpers.multiple(() => faker.word.noun(), {
                 count: adTypesTempCount,
             });
@@ -47,10 +61,10 @@ export async function generateAppsAndDomains({ listCount, countriesCount, adSize
             const type = faker.helpers.arrayElement(TYPE);
             const word = faker.word.noun();
             const name = type === 'domain' ? `${word}.com` : word;
-            const id = faker.string.uuid();
+            const id = faker.string.nanoid();
 
-            const randomAdSizesCount = faker.number.int({ max: adSizesCount });
-            const randomCountriesCount = faker.number.int({ max: countriesCount });
+            const randomAdSizesCount = faker.number.int({ min: 1, max: adSizesCount });
+            const randomCountriesCount = faker.number.int({ min: 1, max: countriesCount });
 
             const countriesDisplayValues = [];
             const appAndDomainCountries = faker.helpers.multiple(
@@ -78,15 +92,12 @@ export async function generateAppsAndDomains({ listCount, countriesCount, adSize
                 { count: randomAdSizesCount }
             );
 
-            const envRandomNum = faker.helpers.rangeToNumber({ min: 1, max: 2 });
-            const environments = envRandomNum === 1 ? [faker.helpers.arrayElement(ENV)] : ENV;
-
             return {
                 id,
                 type,
                 name,
                 appSettings: {
-                    id: faker.string.uuid(),
+                    appId: faker.string.nanoid(),
                     appStoreType: faker.helpers.arrayElement(APPSTORE_TYPE),
                 },
                 domainSettings: {
@@ -103,9 +114,9 @@ export async function generateAppsAndDomains({ listCount, countriesCount, adSize
                     totalCount: randomAdSizesCount,
                 },
 
-                channels,
                 adTypesTemp,
-                environments,
+                channels: getChannels(),
+                environments: getEnvironments(),
 
                 appAndDomainCountries,
                 appAndDomainAdSizes,
@@ -122,24 +133,16 @@ export async function generateSubDomains({ listCount, countriesCount, adSizesCou
 
     return faker.helpers.multiple(
         () => {
-            const channelsCount = faker.helpers.rangeToNumber({ max: 20 });
-            const channels = faker.helpers.multiple(() => faker.word.noun(), {
-                count: channelsCount,
-            });
-
-            const adTypesTempCount = faker.helpers.rangeToNumber({ max: 20 });
+            const adTypesTempCount = faker.helpers.rangeToNumber({ min: 1, max: 10 });
             const adTypesTemp = faker.helpers.multiple(() => faker.word.noun(), {
                 count: adTypesTempCount,
             });
 
-            const envRandomNum = faker.helpers.rangeToNumber({ min: 1, max: 2 });
-            const environments = envRandomNum === 1 ? [faker.helpers.arrayElement(ENV)] : ENV;
-
             const name = faker.word.noun();
-            const id = faker.string.uuid();
+            const id = faker.string.nanoid();
 
-            const randomAdSizesCount = faker.number.int({ max: adSizesCount });
-            const randomCountriesCount = faker.number.int({ max: countriesCount });
+            const randomAdSizesCount = faker.number.int({ min: 1, max: adSizesCount });
+            const randomCountriesCount = faker.number.int({ min: 1, max: countriesCount });
 
             const appsAndDomainsIdx = faker.helpers.rangeToNumber({
                 max: appsAndDomains.length - 1,
@@ -184,9 +187,9 @@ export async function generateSubDomains({ listCount, countriesCount, adSizesCou
                     displayValues: adSizesDisplayValues,
                     totalCount: randomAdSizesCount,
                 },
-                channels,
+                channels: getChannels(),
+                environments: getEnvironments(),
                 adTypesTemp,
-                environments,
                 subdomainCountries,
                 subdomainAdSizes,
             };

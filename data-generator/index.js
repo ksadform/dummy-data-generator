@@ -1,6 +1,7 @@
 import { writeFileSync } from 'fs';
 import { join } from 'path';
-import { generateAdSizes, generateAppsAndDomains, generateCountries, generateSubDomains } from './helpers.js';
+import { generateAdSizes, generateAppsAndDomains, generateCountries, generateSubDomains, getSubset } from './helpers.js';
+import { CHANNEL, ENV } from './constants.js';
 
 export async function generateData() {
     const countries = generateCountries(50);
@@ -30,3 +31,8 @@ export async function generateData() {
 }
 
 generateData();
+
+
+// const arr = getSubset(ENV, 3)
+// console.log(arr)
+

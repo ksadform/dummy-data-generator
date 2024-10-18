@@ -9,6 +9,7 @@
   },
   "scripts": {
     "generate:data": "node data-generator/index.js",
+    "refresh:data":"yarn generate:data && yarn move:data",
     "move:data": "./scripts/migrate-data.sh",
     "mock:data": "node mock/index.js"
   },
