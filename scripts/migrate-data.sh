@@ -13,3 +13,4 @@ cp -rf data/apps-and-domains.js ~/${BASE_PATH}/AAP-schema-server/AAP-schema-modu
 cp -rf data/subdomains.js ~/${BASE_PATH}/AAP-schema-server/AAP-schema-module-catalog/src/modules/adform/readModel/inventoryMarketplaceEntityListModule/mocks/data/
 cp -rf data/ad-types-temp.js ~/${BASE_PATH}/AAP-schema-server/AAP-schema-module-catalog/src/modules/adform/readModel/inventoryMarketplaceEntityListModule/mocks/data/
 cp -rf data/channels.js ~/${BASE_PATH}/AAP-schema-server/AAP-schema-module-catalog/src/modules/adform/readModel/inventoryMarketplaceEntityListModule/mocks/data/
+cp -rf data/environments.js ~/${BASE_PATH}/AAP-schema-server/AAP-schema-module-catalog/src/modules/adform/readModel/inventoryMarketplaceEntityListModule/mocks/data/

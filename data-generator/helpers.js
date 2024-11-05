@@ -28,6 +28,13 @@ export function generateAdSizes(count) {
   return uniqBy(records, 'name');
 }
 
+export function generateEnvironments() {
+  return [
+    { id: 0, value: 0 }, // web
+    { id: 1, value: 0 }, // app
+  ];
+}
+
 export function getSubset(array, subsetLength) {
   array = cloneDeep(array);
 
@@ -91,7 +98,7 @@ export async function generateAppsAndDomains(listCount) {
     async () => {
       const type = faker.helpers.arrayElement(TYPE);
       const word = faker.word.noun();
-      const name = type === 'domain' ? `${word}.com` : word;
+      const name = type === 2 ? `${word}.com` : word;
       const id = faker.string.nanoid();
 
       const randomAdSizesCount = faker.number.int({ min: 1, max: 50 });
@@ -125,7 +132,7 @@ export async function generateAppsAndDomains(listCount) {
 
       const selectedAdTypesTemp = await selectData({ data: adTypeTemp, count: 50 }, (data) => data.value);
       const selectedChannels = await selectData({ data: channels, count: 6 }, (data) => data.value);
-  
+
       return {
         id,
         type,
@@ -135,7 +142,7 @@ export async function generateAppsAndDomains(listCount) {
           appStoreType: faker.helpers.arrayElement(APPSTORE_TYPE),
         },
         domainSettings: {
-          hasSubdomains: faker.datatype.boolean(),
+          hasSubdomains: type === 2 ? faker.datatype.boolean() : false,
         },
 
         countries: {
@@ -178,10 +185,18 @@ export async function generateSubDomains(listCount) {
       const randomAdSizesCount = faker.number.int({ min: 1, max: 50 });
       const randomCountriesCount = faker.number.int({ min: 1, max: 50 });
 
-      const appsAndDomainsIdx = faker.helpers.rangeToNumber({
-        max: appsAndDomains.length - 1,
+      const filteredData = appsAndDomains.filter((data) => {
+        const isDomain = data.type === 2;
+        const hasDomain = data.domainSettings.hasSubdomains;
+
+        return isDomain && hasDomain;
       });
-      const appsAndDomainsID = appsAndDomains[appsAndDomainsIdx].id;
+
+      const appsAndDomainsIdx = faker.helpers.rangeToNumber({
+        max: filteredData.length - 1,
+      });
+
+      const appsAndDomainsID = filteredData[appsAndDomainsIdx].id;
 
       const countriesDisplayValues = [];
       const subdomainCountries = faker.helpers.multiple(
@@ -221,7 +236,7 @@ export async function generateSubDomains(listCount) {
           displayValues: adSizesDisplayValues,
           totalCount: randomAdSizesCount,
         },
-        
+
         environments: getEnvironments(),
         channels: selectedChannels,
         adTypesTemp: selectedAdTypesTemp,
@@ -232,6 +247,6 @@ export async function generateSubDomains(listCount) {
     { count: listCount },
   );
 
-  const data = await Promise.all(promises)
-  return data
+  const data = await Promise.all(promises);
+  return data;
 }
